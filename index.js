@@ -4,10 +4,10 @@ const app = express();
 app.use('/', express.static(__dirname+'/face'));
 
 app.get('/', (req,res) => {
-    res.sendFile(__dirname+'/face/index.html');  
+  res.sendFile(__dirname+'/face/index.html');  
 });
 app.get('/testeWebcam', (req,res) => {
-    res.sendFile(__dirname+'/face/webcam.html');  
+  res.sendFile(__dirname+'/face/webcam.html');  
 });
 
 

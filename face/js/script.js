@@ -1,6 +1,10 @@
+import {api} from '../enviroments/enviroment.js'
+
+const video = document.getElementById('video');
 const URL = "./models/";
 const modelURL = URL + "model.json";
 const metadataURL = URL + "metadata.json";
+
 function loadModel(){
   Promise.all([
     faceapi.nets.ssdMobilenetv1.loadFromUri('./models'),//ROSTO
@@ -21,9 +25,29 @@ function extractFace(box,video){
   canvasFace.getContext('2d').drawImage(video,x,y,width,height,0,0,width,height);
   return canvasFace;
 }
+function getDataImg(img) {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = img.width;
+  canvas.height = img.height;
+  ctx.drawImage(img, 0, 0,img.width,img.height);
+  return canvas.toDataURL('image/jpeg');
+}
+
 async function detectVideo(model){
-  const video = document.getElementById('video');
-  video.playbackRate = 0.3;
+  //video.playbackRate = 0.3;
+   const init = firebase.initializeApp(api);
+   const firestore = init.firestore();
+   let pending = null;
+  if (navigator.mediaDevices.getUserMedia) {
+	navigator.mediaDevices
+		.getUserMedia({ video: true,audio:false })
+		.then(function (stream) {
+		video.srcObject = stream;
+	}).catch(function (e) {
+		console.log(e);
+	});
+  }
   video.addEventListener("play", async ()=> {
     const displaySize = { width: video.width, height: video.height }
     const canvas = faceapi.createCanvasFromMedia(video);
@@ -44,11 +68,21 @@ async function detectVideo(model){
             const drawBox = new faceapi.draw.DrawBox(box,{label:label,lineWidth:2});
             canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
             drawBox.draw(canvas);
+		        if(!pending && (result.className === "Sem Mascara" && result.probability >= 0.99)){
+              pending = new Promise(resolve => {
+                resolve(firestore.collection('portaria').add({
+                  data:new Date().toISOString(),
+                  img:getDataImg(video)
+                }));
+              });
+              pending.then(()=>{ 
+                pending = null;
+              }).catch((e)=> console.log(e));
+            }
           });
       });
     },100)  
   });
-  video.play();
 }
 loadModel();
 
