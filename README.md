@@ -1,5 +1,10 @@
 # Reconhecimento de pessoas com mascara/sem mascara
-
+<p>
+  O sistema de reconhecimento facial visa controlar a entrada de colaboradores que não possuem qualquer tipo de proteção facial, 
+  através de um banco de dados integrado com o aplicativo e o sistema de reconhecimento facial, as imagens que se enquadrarem em 
+  colaboradores sem máscara serão enviadas para o banco de dados e visualizadas por um superior da empresa pelo aplicativo.
+</p>
+  
 # Implementação
 
 - TensorFlow.js e face-api.js<br>
