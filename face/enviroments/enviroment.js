@@ -1,5 +1,5 @@
 export const api = {
-    apiKey: 'KEY',
+    apiKey: 'YOUR API KEY',
     authDomain: "bsi6pi.firebaseapp.com",
     databaseURL: "https://bsi6pi.firebaseio.com",
     projectId: "bsi6pi",
