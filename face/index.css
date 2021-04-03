@@ -1,21 +1,6 @@
-body {
-    margin: 0;
-    padding: 0;
-    width: 100vw;
-    height: 100vh;
-}
-.label{
-   text-align: center;
-}
-.status{
-   text-align: center;
-}
-.container{
-   margin-top: 10px;
-   display: flex;
-   justify-content: center;
-   align-items: center;
-}
-canvas {
-   position: absolute;
-}
+.upload { margin-top: 5px; text-align: center; }
+.label{ text-align: center; }
+.status{ text-align: center; }
+.container{ margin-top: 10px; display: flex;justify-content: center;align-items: center;}
+canvas { position: absolute;}
+ul { list-style-type: none; }

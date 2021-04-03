@@ -7,3 +7,8 @@ export const api = {
     messagingSenderId: "1054893422116",
     appID: "1:1054893422116:web:bb0a3b525928e24c2e8ab1",
 };
+export const model = {
+    ROOT: '../../models',
+    URL: '../../models/model.json',
+    METADATA_URL: '../../models/metadata.json'
+}

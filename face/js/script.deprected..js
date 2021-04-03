@@ -10,11 +10,11 @@ function loadModel(){
     faceapi.nets.ssdMobilenetv1.loadFromUri('./models'),//ROSTO
     mobilenet.load(modelURL, metadataURL)//MASCARA
   ]).then((values)=> { 
-    detectVideo(values[1]); 
+    detectImg(values[1]); 
   });
 }
 
-function extractFace(box,video){
+function extractFace(box, video){
   const canvasFace = document.createElement("canvas")
   const x =  box.x - 10;
   const y = box.y - 15;
@@ -25,6 +25,7 @@ function extractFace(box,video){
   canvasFace.getContext('2d').drawImage(video,x,y,width,height,0,0,width,height);
   return canvasFace;
 }
+
 function getDataImg(img) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
@@ -87,29 +88,5 @@ async function detectVideo(model){
 loadModel();
 
 
-//TESTE DETECÇÃO IMAGEM
-async function detectImg(model){
-  const img = document.querySelector('img');
-  const displaySize = { width: img.width, height: img.height }
-  await faceapi.detectAllFaces(img)
-    .then(async (detections)=> {
-      detections.forEach(async (detection)=> {
-        const extractedFace = extractFace(detection.box,img);
-        const predictions = await model.predict(extractedFace);
-        const result = predictions.reduce((comMascara,semMascara) => { 
-          return comMascara.probability > semMascara.probability ? comMascara : semMascara;
-        });
-        const canvas = faceapi.createCanvasFromMedia(img);
-        const label =  result.className+" "+result.probability.toFixed(2);
-        const resizedDetections = faceapi.resizeResults(detection, displaySize)
-        const box = resizedDetections.box;
-        const drawBox = new faceapi.draw.DrawBox(box,{label:label,lineWidth:2});
-        document.querySelector('.container').append(canvas)
-        faceapi.matchDimensions(canvas, displaySize)
-        canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
-        drawBox.draw(canvas);
-      });
-  });
-}
 
 
