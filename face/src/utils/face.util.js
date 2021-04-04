@@ -8,7 +8,7 @@ export async function loadModel() {
     return maskModel 
 }
 
-export function extractFace(box, img){
+export function extractFace(box, img) {
     const canvasFace = document.createElement("canvas")
     const x =  box.x - 10;
     const y = box.y - 15;
@@ -60,10 +60,10 @@ function createVideoElement(src) {
     
     videoElement.width = 500;
     videoElement.height = 500;
+    videoElement.muted = true;
     source.width = 600;
     source.height = 600;
-    videoElement.muted = true;
-    source.src = src
+    source.src = src;
     videoElement.appendChild(source)
 
     return videoElement;

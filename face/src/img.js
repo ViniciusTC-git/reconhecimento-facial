@@ -25,9 +25,7 @@ async function predict(){
 
     const detections = await faceapi.detectAllFaces(img);
 
-    const extractedFaces = detections
-        .filter(({ score }) => score > 0.60)
-        .map(detection => extractFace(detection.box, img))
+    const extractedFaces = detections.map(detection => extractFace(detection.box, img))
 
     const predictions = await Promise.all(extractedFaces.map(face => model.predict(face)))
 
