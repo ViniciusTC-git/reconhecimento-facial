@@ -1,4 +1,4 @@
-import { api } from '../enviroments/enviroment.js'
+import { FirebaseService } from './services/firebase.service.js';
 import { 
     loadModel, 
     extractFace,
@@ -6,6 +6,7 @@ import {
 } from './utils/face.util.js';
 
 const video = document.querySelector("video");
+const factory = [10,15,100,100];
 let model = null;
 
 async function init() {
@@ -23,9 +24,7 @@ async function init() {
 }
 
 async function predict() {
-   let pending = null;
-   const init = firebase.initializeApp(api);
-   const firestore = init.firestore();
+   const firebaseService = new FirebaseService();
 
    video.addEventListener("play", async () => {
         const displaySize = { width: video.width, height: video.height }
@@ -38,17 +37,12 @@ async function predict() {
             const detections = await faceapi.detectAllFaces(video);
             const extractedFaces = detections
                 .filter(({ score }) => score > 0.60)
-                .map(detection => extractFace(detection.box, video))
+                .map(detection => extractFace(detection.box, video, factory))
         
             const predictions = await Promise.all(extractedFaces.map(face => model.predict(face)))
         
             predictions.forEach((predict, i) => {
-                const { className: nome, probability: probabilidade } = predict.reduce((acc, curr) => { 
-                    if (!acc.probability || +curr.probability > +acc.probability) Object.assign(acc ,curr);
-            
-                    return acc;
-                }, {});
-        
+                const { nome, probabilidade } = getHighestPredict(predict);
                 const label = `${ nome }: ${ probabilidade.toFixed(2) }`;    
                 const resizedDetections = faceapi.resizeResults(detections[i], displaySize)
                 const box = resizedDetections.box;
@@ -57,11 +51,11 @@ async function predict() {
                 canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
                 drawBox.draw(canvas);
 
-                if (!pending && (nome === "Sem Mascara" && probabilidade >= 0.99)) {
-                    const payload = { data: new Date().toISOString(), img: getDataImg(video) }
-                      
-                    pending = new Promise(resolve => resolve(firestore.collection('portaria').add(payload)));
-                    pending.then(() => pending = null).catch((e)=> console.error(e));
+                if (nome === "Sem Mascara" && probabilidade >= 0.99) {
+                    firebaseService.sendImg({ 
+                        data: new Date().toISOString(), 
+                        img: getDataImg(video) 
+                    })
                 }
             })    
         

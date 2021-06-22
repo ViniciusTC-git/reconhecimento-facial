@@ -1,11 +1,17 @@
+import { FirebaseService } from './services/firebase.service.js';
 import { 
     loadModel, 
     extractFace,
-    uploadFile
+    uploadFile,
+    getHighestPredict,
+    getDataImg
 } from './utils/face.util.js';
 
 const fileElement = document.querySelector("#file")
 const containerElement =  document.body.querySelector('.container')
+const factory = [10,15,100,100];
+const firebaseService = new FirebaseService();
+
 let model = null;
 
 async function init() {
@@ -33,17 +39,12 @@ async function predict() {
         const detections = await faceapi.detectAllFaces(video);
         const extractedFaces = detections
             .filter(({ score }) => score > 0.60)
-            .map(detection => extractFace(detection.box, video))
+            .map(detection => extractFace(detection.box, video, factory))
     
-        const predictions = await Promise.all(extractedFaces.map(face => model.predict(face)))
-    
-        predictions.forEach((predict, i) => {
-            const { className: nome, probability: probabilidade } = predict.reduce((acc, curr) => { 
-                if (!acc.probability || +curr.probability > +acc.probability) Object.assign(acc ,curr);
+        const maskPredictions = await Promise.all(extractedFaces.map(face => model['mask'].predict(face)))
         
-                return acc;
-            }, {});
-    
+        maskPredictions.forEach((predict, i) => {
+            const { nome,  probabilidade } = getHighestPredict(predict);
             const label = `${ nome }: ${ probabilidade.toFixed(2) }`;    
             const resizedDetections = faceapi.resizeResults(detections[i], displaySize)
             const box = resizedDetections.box;
@@ -51,6 +52,13 @@ async function predict() {
         
             canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
             drawBox.draw(canvas);
+
+            if ((nome === "Sem Mascara" && probabilidade >= 0.99)) {
+                firebaseService.sendImg({ 
+                    data: new Date().toISOString(), 
+                    img: getDataImg(video) 
+                })
+            }
         })    
       
       },100)  

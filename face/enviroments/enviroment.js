@@ -1,5 +1,5 @@
-export const api = {
-    apiKey: 'YOUR API KEY',
+export const API = {
+    apiKey: 'AIzaSyBGXAu3pDiV2BfLZJZPInk3OwYM08I3mxc',
     authDomain: "bsi6pi.firebaseapp.com",
     databaseURL: "https://bsi6pi.firebaseio.com",
     projectId: "bsi6pi",
@@ -9,6 +9,14 @@ export const api = {
 };
 export const model = {
     ROOT: '../../models',
-    URL: '../../models/model.json',
-    METADATA_URL: '../../models/metadata.json'
+    URL_FACE: '../../models/model_face',
+    URL_MASK: {
+        URL: '../../models/model_mask/model.json',
+        METADATA_URL: '../../models/model_mask/metadata.json'
+    },
+    URL_PESSOA: {
+        URL: '../../models/model_pessoa/model.json',
+        METADATA_URL: '../../models/model_pessoa/metadata.json'
+    }
+   
 }

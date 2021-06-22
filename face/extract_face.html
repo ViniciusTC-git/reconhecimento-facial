@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Extrair Face</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"> </script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-firestore.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.6.0/jszip.js" integrity="sha512-djAJLNukP3WdWmwP/Y05w99aCX6u1jInpshdwiUKbXcQ9y/8BpMtsPsVrVyUbmtEx7wbqFpBq4sGOnIFVScFQQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.js"></script>
+    <script src="js/mobilenet.min.js"></script>
+    <script defer src="js/face-api.min.js"></script>
+    <script type="module" src="src/extract.js"></script>
+  </head>
+  <style>
+    .container {
+      zoom: 60%;
+      display: grid;
+      grid-template-columns: auto auto auto auto;
+      grid-gap: 1px;
+      padding: 10px;
+    }
+
+    .container > canvas {
+      text-align: center;
+      font-size: 30px;
+      margin-bottom: 2px;
+    }
+  </style>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="/">Imagem</a></li>
+          <li><a href="/video">Video</a></li>
+          <li><a href="/webcam">Web Cam</a></li>
+          <li><a href="/extract-face">Extrai Face</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main style="text-align: center;">
+      <div class="upload">
+        <input multiple type="file" id="file" accept=".jpg, .jpeg, .png" placeholder="Escolha o Arquivo(s)"/>
+      </div><br/>
+      <button id="download">Dowload imagens</button>
+      <button id="clear"> Limpar </button>
+      <div class="container"></div>
+    </main>
+  </body>
+</html>

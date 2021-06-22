@@ -1,19 +1,24 @@
 import { model } from '../../enviroments/enviroment.js';
 
 export async function loadModel() {
-    const { ROOT, URL, METADATA_URL } = model;
-    const models = [ faceapi.nets.ssdMobilenetv1.loadFromUri(ROOT), mobilenet.load(URL, METADATA_URL) ]
-    const [_, maskModel] = await Promise.all(models)
+    const { URL_FACE, URL_MASK, URL_PESSOA } = model;
+    const models = [ 
+        faceapi.nets.ssdMobilenetv1.loadFromUri(URL_FACE), 
+        mobilenet.load(URL_MASK.URL, URL_MASK.METADATA_URL),
+        mobilenet.load(URL_PESSOA.URL, URL_PESSOA.METADATA_URL)
+    ]
+    const [_, mask, person] = await Promise.all(models)
 
-    return maskModel 
+    return { mask, person }; 
 }
 
-export function extractFace(box, img) {
+export function extractFace(box, img, factory) {
+    const [ x_factory, y_factory, width_factory, height_factory ] = factory;
     const canvasFace = document.createElement("canvas")
-    const x =  box.x - 10;
-    const y = box.y - 15;
-    const width = box.width + 100;
-    const height = box.height + 100;
+    const x =  !x_factory ? box.x : (box.x - x_factory);
+    const y = !y_factory ? box.y : (box.y - y_factory);
+    const width = !width_factory ? box.width : (box.width + width_factory);
+    const height = !height_factory ? box.height : (box.height + height_factory);
 
     canvasFace.width = width;
     canvasFace.height = height;
@@ -31,6 +36,33 @@ export function getDataImg(img) {
     ctx.drawImage(img, 0, 0,img.width,img.height);
 
     return canvas.toDataURL('image/jpeg');
+}
+
+
+export function uploadMultipleFiles(e) {
+    return new Promise((resolve) => {
+        if (!e.target.files.length) return;
+
+        let i = 0;
+        const filesLength = e.target.files.length;
+        const imgs = [];
+        const files = e.target.files;
+        const reader = new FileReader();
+
+        reader.addEventListener('load', async (e) => {
+
+            imgs.push(createImgElement(e.target.result));
+
+            if (imgs.length === filesLength) {
+                resolve(imgs)
+            } else {
+                i += + 1;
+                reader.readAsDataURL(files[i]);
+            }
+        });
+        
+        reader.readAsDataURL(files[i]);
+    });
 }
 
 export function uploadFile(e) {
@@ -78,4 +110,28 @@ function createImgElement(src) {
     img.src = src;
 
     return img;
+}
+
+export function createImgExtract(src) {
+    const img = document.createElement('img')
+
+    img.width = 255;
+    img.height = 255;
+    img.src = src;
+
+    return img;
+}
+
+export function isPerson({ nome, probabilidade }) {
+    return nome !== "Random" && probabilidade >= 0.99;
+}
+
+export function getHighestPredict(predict) {
+    const { className: nome, probability: probabilidade } = predict.reduce((acc, curr) => { 
+        if (!acc.probability || +curr.probability > +acc.probability) Object.assign(acc ,curr);
+
+        return acc;
+    }, {});
+
+    return { nome, probabilidade };
 }
